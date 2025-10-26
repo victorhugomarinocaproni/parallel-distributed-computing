@@ -1,14 +1,12 @@
-import java.util.ArrayList;
-
 public class TarefaContadora extends Thread
 {
-    private ArrayList<Integer> pacoteDeNumeros;
+    private byte[] pacoteDeNumeros;
     private int numeroDesejado;
 
     private int contagemDoNumeroDesejado = 0;
 
     public TarefaContadora(
-            ArrayList<Integer> pacoteDeNumeros,
+            byte[] pacoteDeNumeros,
             int numeroDesejado
     ) throws Exception
     {
@@ -24,7 +22,7 @@ public class TarefaContadora extends Thread
 
     @Override
     public void run() {
-        for(Integer numero : pacoteDeNumeros)
+        for(byte numero : pacoteDeNumeros)
         {
             if (numero == this.numeroDesejado) this.contagemDoNumeroDesejado++;
         }

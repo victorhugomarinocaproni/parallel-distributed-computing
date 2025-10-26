@@ -26,7 +26,8 @@ public class Receptor {
             return;
         }
 
-        for (;;) {
+        for (;;)
+        {
             System.out.println("O servidor esta ativo! Para desativa-lo,");
             System.out.println("use o comando \"desativar\"\n");
             System.out.print("> ");

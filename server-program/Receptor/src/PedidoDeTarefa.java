@@ -1,27 +1,29 @@
-import java.util.ArrayList;
+import java.util.Arrays;
 
-public class PedidoDeTarefa extends Comunicado
-{
-    private ArrayList<Integer> pacoteCompletoDeNumeros;
+public class PedidoDeTarefa extends Comunicado {
+    private byte[] pacoteCompletoDeNumeros;
     private int numeroDesejado;
 
     public PedidoDeTarefa(
-            ArrayList<Integer> arrayDeNumeros,
+            byte[] arrayDeNumeros,
             int numeroDesejado
-    ) throws Exception
-    {
+    ) throws Exception {
         if (arrayDeNumeros == null) throw new Exception("O Cliente deve mandar um pacote de números instânciado");
         this.pacoteCompletoDeNumeros = arrayDeNumeros;
         this.numeroDesejado = numeroDesejado;
     }
 
-    public ArrayList<Integer> getPacoteCompletoDeNumeros()
-    {
+    public byte[] getPacoteCompletoDeNumeros() {
         return this.pacoteCompletoDeNumeros;
     }
 
-    public int getNumeroDesejado()
-    {
+    public int getNumeroDesejado() {
         return this.numeroDesejado;
+    }
+
+    @Override
+    public String toString() {
+        return "numeroDesejado: " + this.numeroDesejado +
+                ", pacoteCompletoDeNumeros: " + Arrays.toString(this.pacoteCompletoDeNumeros);
     }
 }

@@ -3,6 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GerenteDeConexao extends Thread
@@ -11,7 +12,7 @@ public class GerenteDeConexao extends Thread
     private Socket conexao;
     private Cliente cliente;
 
-    private ArrayList<TarefaContadora> tarefas;
+    private ArrayList<TarefaContadora> tarefas = new ArrayList<>();
 
     public GerenteDeConexao(
             Socket conexao,
@@ -71,22 +72,22 @@ public class GerenteDeConexao extends Thread
                 if (comunicado instanceof PedidoDeTarefa)
                 {
                     PedidoDeTarefa pedidoDeTarefa = (PedidoDeTarefa)comunicado;
+                    System.out.printf(pedidoDeTarefa.toString());
 
-                    // int quantidadeDeProcessadores = Runtime.getRuntime().availableProcessors();
-                    int PROCESSADORES = 3;
+                    int quantidadeDeProcessadores = 1;
 
-                    ArrayList<Integer> pacoteCompleto = pedidoDeTarefa.getPacoteCompletoDeNumeros();
+                    byte[] pacoteCompleto = pedidoDeTarefa.getPacoteCompletoDeNumeros();
 
-                    int tamanhoDoSubPacote = pacoteCompleto.size() / PROCESSADORES;
-                    ArrayList<ArrayList<Integer>> subPacotes = new ArrayList<>();
+                    int tamanhoDoSubPacote = pacoteCompleto.length / quantidadeDeProcessadores;
+                    ArrayList<byte[]> subPacotes = new ArrayList<>();
 
-                    for (int i = 0; i < PROCESSADORES; i++) {
+                    for (int i = 0; i < quantidadeDeProcessadores; i++) {
                         int start = i * tamanhoDoSubPacote;
-                        int end = (i == PROCESSADORES - 1) ? pacoteCompleto.size() : start + tamanhoDoSubPacote;
-                        subPacotes.add(new ArrayList<Integer>(pacoteCompleto.subList(start, end)));
+                        int end = (i == quantidadeDeProcessadores - 1) ? pacoteCompleto.length : start + tamanhoDoSubPacote;
+                        subPacotes.add(Arrays.copyOfRange(pacoteCompleto, start, end));
                     }
 
-                    for(int i = 0; i < PROCESSADORES; i++)
+                    for(int i = 0; i < quantidadeDeProcessadores; i++)
                     {
                         TarefaContadora novaTarefa = new TarefaContadora(subPacotes.get(i), pedidoDeTarefa.getNumeroDesejado());
                         novaTarefa.start();

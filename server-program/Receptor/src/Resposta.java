@@ -7,8 +7,5 @@ public class Resposta extends Comunicado
         this.contagem = contagem;
     }
 
-    public int getContagem()
-    {
-        return this.contagem;
-    }
+    public int getContagem() { return this.contagem; }
 }

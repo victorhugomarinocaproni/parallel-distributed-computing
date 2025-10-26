@@ -17,6 +17,7 @@ public class AceitadoraDeConexao extends Thread
         try
         {
             this.pedido = new ServerSocket(Integer.parseInt(porta));
+            this.clientes = clientes;
         }
         catch (Exception e)
         {
@@ -32,6 +33,7 @@ public class AceitadoraDeConexao extends Thread
             try
             {
                 conexao = this.pedido.accept();
+                System.out.println("Client connected");
             }
             catch(Exception error)
             {
@@ -42,13 +44,14 @@ public class AceitadoraDeConexao extends Thread
             GerenteDeConexao gerenteDeConexao = null;
             try
             {
-                gerenteDeConexao = new GerenteDeConexao(conexao, clientes);
+                gerenteDeConexao = new GerenteDeConexao(conexao, this.clientes);
             }
             catch(Exception error)
             {
                 System.out.println("Error: " + error.getMessage());
             }
             gerenteDeConexao.start();
+            System.out.println("Thread lançada!");
         }
     }
 }
