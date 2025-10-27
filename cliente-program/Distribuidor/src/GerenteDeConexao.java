@@ -3,6 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GerenteDeConexao extends Thread
@@ -11,14 +12,21 @@ public class GerenteDeConexao extends Thread
     private Socket conexao;
     private Servidor servidor;
 
+    private int tamanhoDoArray;
+    private int numeroDesejado;
 
     public GerenteDeConexao(
             Socket conexao,
-            ArrayList<Servidor> servidores) throws Exception
+            ArrayList<Servidor> servidores,
+            int tamanhoDoArray,
+            int numeroDesejado
+    ) throws Exception
     {
         if (conexao == null) throw new Exception ("Conexão ausente");
         this.conexao = conexao;
         this.servidores = servidores;
+        this.tamanhoDoArray = tamanhoDoArray;
+        this.numeroDesejado = numeroDesejado;
     }
 
     public void run()
@@ -48,21 +56,42 @@ public class GerenteDeConexao extends Thread
             return;
         }
 
-        byte[] NUMEROS = new byte[] {1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 4, 5, 3, 4, 4, 3, 1, 1, 1, 2, 1,4 ,5, 6, 7, 8, 8};
-        int NUMERO_DESEJADO = 1;
+        int MAX = 100;
+        int MIN = -100;
+        byte[] numeros = new byte[this.tamanhoDoArray];
+
+        for(int i = 0; i < this.tamanhoDoArray; i++)
+        {
+            int aleatorio = ((int)(Math.random()*(MAX-MIN)))+MIN;
+            numeros[i] = (byte)aleatorio;
+        }
+
+        long inicio = System.currentTimeMillis();
+        System.out.println("Início: " + inicio);
 
         try
         {
-            long inicio = System.currentTimeMillis();
-            System.out.println("Início: " + inicio);
-            PedidoDeTarefa pedido = new PedidoDeTarefa(NUMEROS, NUMERO_DESEJADO);
-            this.servidor = new Servidor(this.conexao, receptorDeComunicado, transmissorDeComunicado);
-            synchronized (this.servidores)
-            {
-                this.servidores.add(this.servidor);
+            int tamanhoDoSubPacote = numeros.length / this.servidores.size();
+            ArrayList<byte[]> subPacotes = new ArrayList<>();
+
+            for (int i = 0; i < this.servidores.size(); i++) {
+                int start = i * tamanhoDoSubPacote;
+                int end = (i == this.servidores.size() - 1) ? numeros.length : start + tamanhoDoSubPacote;
+                subPacotes.add(Arrays.copyOfRange(numeros, start, end));
             }
-            this.servidor.recebaComunicado(pedido);
-            this.servidor.start();
+
+            for(int i = 0; i < this.servidores.size(); i++)
+            {
+                byte[] subPacoteDoPedido = subPacotes.get(i);
+                PedidoDeTarefa pedido = new PedidoDeTarefa(subPacoteDoPedido, this.numeroDesejado);
+                this.servidor = new Servidor(this.conexao, receptorDeComunicado, transmissorDeComunicado);
+                synchronized (this.servidores)
+                {
+                    this.servidores.add(this.servidor);
+                }
+                this.servidor.recebaComunicado(pedido);
+                this.servidor.start();
+            }
         }
         catch(Exception error)
         {
@@ -84,7 +113,7 @@ public class GerenteDeConexao extends Thread
                 }
                 long fim = System.currentTimeMillis();
                 System.out.println("Fim: " + fim);
-                System.out.println("O total de vezes que o número: " + NUMERO_DESEJADO + " foi encontrado é: " + total);
+                System.out.println("O total de vezes que o número: " + this.numeroDesejado + " foi encontrado é: " + total);
                 System.exit(0);
             }
         }

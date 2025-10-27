@@ -6,12 +6,19 @@ public class CriadoraDeConexao extends Thread
 {
     private ArrayList<Servidor> servidores;
 
+    private int tamanhoDoArray;
+    private int numeroDesejado;
+
     public CriadoraDeConexao(
-            ArrayList<Servidor> servidores
+            ArrayList<Servidor> servidores,
+            int tamanhoDoArray,
+            int numeroDesejado
     ) throws Exception
     {
         if (servidores == null) throw new Exception ("Instâncie um ArrayList de servidores.");
         this.servidores = servidores;
+        this.tamanhoDoArray = tamanhoDoArray;
+        this.numeroDesejado = numeroDesejado;
     }
 
     public void criaConexao(
@@ -32,7 +39,7 @@ public class CriadoraDeConexao extends Thread
         GerenteDeConexao gerenteDeConexao = null;
         try
         {
-            gerenteDeConexao = new GerenteDeConexao(novaConexao, servidores);
+            gerenteDeConexao = new GerenteDeConexao(novaConexao, servidores, this.tamanhoDoArray, this.numeroDesejado);
         }
         catch(Exception error)
         {
