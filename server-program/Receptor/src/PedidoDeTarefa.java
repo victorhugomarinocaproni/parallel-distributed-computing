@@ -1,29 +1,28 @@
 import java.util.Arrays;
 
 public class PedidoDeTarefa extends Comunicado {
-    private byte[] pacoteCompletoDeNumeros;
-    private int numeroDesejado;
+    private byte[] numeros;
+    private byte procurado;
 
     public PedidoDeTarefa(
-            byte[] arrayDeNumeros,
-            int numeroDesejado
+            byte[] numeros,
+            byte procurado
     ) throws Exception {
-        if (arrayDeNumeros == null) throw new Exception("O Cliente deve mandar um pacote de números instânciado");
-        this.pacoteCompletoDeNumeros = arrayDeNumeros;
-        this.numeroDesejado = numeroDesejado;
+        if (numeros == null) throw new Exception("O Cliente deve mandar um pacote de números instânciado");
+        this.numeros = numeros;
+        this.procurado = procurado;
     }
 
-    public byte[] getPacoteCompletoDeNumeros() {
-        return this.pacoteCompletoDeNumeros;
+    public byte[] getNumeros() {
+        return this.numeros;
     }
 
-    public int getNumeroDesejado() {
-        return this.numeroDesejado;
+    public int getProcurado() {
+        return this.procurado;
     }
 
     @Override
     public String toString() {
-        return "numeroDesejado: " + this.numeroDesejado +
-                ", pacoteCompletoDeNumeros: " + Arrays.toString(this.pacoteCompletoDeNumeros);
+        return "Procurado: " + this.procurado + "\n  > Números: " + Arrays.toString(this.numeros);
     }
 }

@@ -33,7 +33,7 @@ public class AceitadoraDeConexao extends Thread
             try
             {
                 conexao = this.pedido.accept();
-                System.out.println("Client connected");
+                System.out.println("\n[R] Cliente conectado com sucesso!");
             }
             catch(Exception error)
             {
@@ -51,7 +51,6 @@ public class AceitadoraDeConexao extends Thread
                 System.out.println("Error: " + error.getMessage());
             }
             gerenteDeConexao.start();
-            System.out.println("Thread lançada!");
         }
     }
 }

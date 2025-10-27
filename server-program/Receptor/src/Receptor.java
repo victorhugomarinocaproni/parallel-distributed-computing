@@ -15,6 +15,10 @@ public class Receptor {
         if (args.length == 1)
             porta = args[0];
 
+        System.out.println("==============================");
+        System.out.println("PROGRAMA SERVIDOR");
+        System.out.println("==============================");
+
         ArrayList<Cliente> clientes = new ArrayList<Cliente>();
         AceitadoraDeConexao aceitadoraDeConexao = null;
 

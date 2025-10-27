@@ -1,26 +1,33 @@
-public class Pedido extends Comunicado
+import java.util.Arrays;
+
+public class Pedido extends Thread
 {
     private byte[] numeros;
     private byte procurado;
 
+    private int contagemDoNumeroDesejado = 0;
+
     public Pedido(
             byte[] numeros,
             byte procurado
-    ) throws  Exception
+    ) throws Exception
     {
-        if (numeros == null) throw new Exception("Passe um vetor de número");
+        if (numeros == null) throw new Exception("Pacote de números ausente");
         this.numeros = numeros;
         this.procurado = procurado;
     }
 
-    public int contar()
+    public int getTotalDaContagem()
     {
-        int contador = 0;
-        for (byte numero : this.numeros)
+        return this.contagemDoNumeroDesejado;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("[R] Thread lançada, analisando sub-pacote:\n    > " + Arrays.toString(this.numeros));
+        for(byte numero : numeros)
         {
-            if (numero == this.procurado)
-                contador++;
+            if (numero == this.procurado) this.contagemDoNumeroDesejado++;
         }
-        return contador;
     }
 }

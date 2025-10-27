@@ -69,9 +69,11 @@ public class Cliente
     {
         try
         {
+            System.out.println("[R] Finalizando Streams de Comunicação e Encerrando conexão...");
             this.transmissorDeComunicado.close();
             this.receptorDeComunicado.close();
             this.conexao.close();
+            System.out.println("[R] A Conexão com o Cliente foi Encerrada.");
         }
         catch (IOException e)
         {
