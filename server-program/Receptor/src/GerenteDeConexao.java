@@ -74,7 +74,7 @@ public class GerenteDeConexao extends Thread
                     PedidoDeTarefa pedidoDeTarefa = (PedidoDeTarefa)comunicado;
                     System.out.printf(pedidoDeTarefa.toString());
 
-                    int quantidadeDeProcessadores = 1;
+                    int quantidadeDeProcessadores = Runtime.getRuntime().availableProcessors();
 
                     byte[] pacoteCompleto = pedidoDeTarefa.getPacoteCompletoDeNumeros();
 

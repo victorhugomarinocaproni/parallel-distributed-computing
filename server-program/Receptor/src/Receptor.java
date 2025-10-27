@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Receptor {
     public static String PORTA_PADRAO = "3000";
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
 
         if (args.length > 1) {
             System.err.println("Uso esperado: java Servidor [PORTA]\n");
