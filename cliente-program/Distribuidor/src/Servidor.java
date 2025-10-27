@@ -103,6 +103,41 @@ public class Servidor extends Thread
         return this.resposta;
     }
 
+    public Socket  getConexao()
+    {
+        return this.conexao;
+    }
+
+    public void fechaConexao()
+    {
+        try
+        {
+            this.conexao.close();
+        }
+        catch(Exception e)
+        {}
+    }
+
+    public void fechaCanalDeInput()
+    {
+        try
+        {
+            this.receptorDeComunicado.close();
+        }
+        catch(Exception e)
+        {}
+    }
+
+    public void fechaCanalDeOutput()
+    {
+        try
+        {
+            this.transmissorDeComunicado.close();
+        }
+        catch(Exception e)
+        {}
+    }
+
     @Override
     public void run()
     {

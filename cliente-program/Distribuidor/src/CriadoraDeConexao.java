@@ -5,20 +5,30 @@ import java.util.ArrayList;
 public class CriadoraDeConexao extends Thread
 {
     private ArrayList<Servidor> servidores;
+    private GerenteDeConexao gerenteDeConexao;
 
     private int tamanhoDoArray;
-    private int numeroDesejado;
 
     public CriadoraDeConexao(
             ArrayList<Servidor> servidores,
-            int tamanhoDoArray,
-            int numeroDesejado
+            int tamanhoDoArray
     ) throws Exception
     {
         if (servidores == null) throw new Exception ("Instâncie um ArrayList de servidores.");
         this.servidores = servidores;
         this.tamanhoDoArray = tamanhoDoArray;
-        this.numeroDesejado = numeroDesejado;
+
+        GerenteDeConexao gerenteDeConexao = null;
+        try
+        {
+            gerenteDeConexao = new GerenteDeConexao(servidores, this.tamanhoDoArray);
+        }
+        catch(Exception error)
+        {
+            System.out.println("Error: " + error.getMessage());
+        }
+        this.gerenteDeConexao =  gerenteDeConexao;
+        this.gerenteDeConexao.start();
     }
 
     public void criaConexao(
@@ -30,21 +40,16 @@ public class CriadoraDeConexao extends Thread
         try
         {
             novaConexao = new Socket(host, porta);
+            this.gerenteDeConexao.adicionaNovaConexaoDeServidor(novaConexao);
         }
         catch(Exception erro)
         {
             throw new Exception("Host ou porta inválidos.");
         }
+    }
 
-        GerenteDeConexao gerenteDeConexao = null;
-        try
-        {
-            gerenteDeConexao = new GerenteDeConexao(novaConexao, servidores, this.tamanhoDoArray, this.numeroDesejado);
-        }
-        catch(Exception error)
-        {
-            System.out.println("Error: " + error.getMessage());
-        }
-        gerenteDeConexao.start();
+    public GerenteDeConexao getGerenteDeConexao()
+    {
+        return this.gerenteDeConexao;
     }
 }
