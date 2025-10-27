@@ -116,7 +116,20 @@ public class Distribuidor {
 
             if (opcaoEscolhida == 3)
             {
-                System.out.println("[D] Enviando Pedido de Encerramento de seção aos servidores...");
+                criadoraDeConexao.getGerenteDeConexao().enviaPedidoDeSaidaParaServidor();
+                Object travaCompartilhada = null;
+                try
+                {
+                    travaCompartilhada = criadoraDeConexao.getGerenteDeConexao().getTravaCompartilhada();
+                }
+                catch(Exception erro){}
+                synchronized (travaCompartilhada)
+                {
+                    try
+                    {
+                        travaCompartilhada.wait();
+                    } catch (InterruptedException e) {}
+                }
                 System.out.println("[D] Terminando todos os processos do programa...");
                 System.out.println("========================================");
                 System.exit(0);

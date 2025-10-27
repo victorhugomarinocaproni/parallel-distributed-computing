@@ -62,6 +62,10 @@ public class GerenteDeConexao extends Thread {
         this.proximoComunicado = new PedirPorTarefas();
     }
 
+    public void enviaPedidoDeSaidaParaServidor() {
+        this.proximoComunicado = new PedidoParaSair();
+    }
+
     public void exibePacoteDeNumerosASerProcessado() {
         System.out.println("Pacote de numeros: " + Arrays.toString(this.pacoteDeNumerosASerProcessado));
     }
@@ -101,7 +105,7 @@ public class GerenteDeConexao extends Thread {
                             Servidor servidorAtual = this.servidores.get(i);
                             byte[] subPacoteDoPedido = subPacotes.get(i);
 
-                            PedidoDeTarefa pedido = new PedidoDeTarefa(subPacoteDoPedido, this.numeroDesejado);
+                            PedidoDeTarefa pedido = new PedidoDeTarefa(subPacoteDoPedido, (byte)this.numeroDesejado);
                             System.out.println("[D] Pedido de Tarefa enviado para o servidor " + servidorAtual.getConexao().getInetAddress() + ". O sub-pacote enviado foi: " + Arrays.toString(subPacoteDoPedido));
 
                             servidorAtual.recebaComunicado(pedido);
@@ -128,12 +132,27 @@ public class GerenteDeConexao extends Thread {
                         this.travaCompartilhada.notify();
                     }
                 }
+                else if (this.proximoComunicado instanceof PedidoParaSair)
+                {
+                    System.out.println("[D] Enviando Pedido de Saída para os Servidores...");
+                    PedidoParaSair pedidoDeSaida = new PedidoParaSair();
+                    for(Servidor servidor : this.servidores)
+                    {
+                        servidor.recebaComunicado(pedidoDeSaida);
+                    }
+                    this.proximoComunicado = null;
+                    synchronized (this.travaCompartilhada)
+                    {
+                        this.travaCompartilhada.notify();
+                    }
+                }
                 else
                 {
                     Thread.yield();
                 }
             }
         } catch (Exception error) {
+            System.out.println("[D] Erro inesperado. Error: " + error.getMessage());
             try {
                 for (Servidor servidor : this.servidores) {
                     servidor.fechaCanalDeInput();
