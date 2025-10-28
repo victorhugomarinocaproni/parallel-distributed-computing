@@ -23,6 +23,7 @@ public class PedidoDeTarefa extends Comunicado {
 
     @Override
     public String toString() {
-        return "Procurado: " + this.procurado + "\n  > Números: " + Arrays.toString(this.numeros);
+        if (this.numeros.length < 50) return "Procurado: " + this.procurado + "\n  > Números: " + Arrays.toString(this.numeros);
+        return "Procurado: " + this.procurado;
     }
 }

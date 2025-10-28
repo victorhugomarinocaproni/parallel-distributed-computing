@@ -67,6 +67,7 @@ public class GerenteDeConexao extends Thread
             System.out.println("[R] Instância do Cliente adicionada à lista de conexões.\n");
             for(;;)
             {
+                if (this.clientes.size() == 0) continue;
                 Comunicado comunicado = this.cliente.envieComunicado();
 
                 if (comunicado == null) return;
@@ -104,6 +105,7 @@ public class GerenteDeConexao extends Thread
                     for (Pedido tarefa : this.tarefas) {
                         tarefa.join();
                     }
+
                     System.out.println("[R] ...");
                     System.out.println("[R] Threads finalizadas.");
 
@@ -111,6 +113,7 @@ public class GerenteDeConexao extends Thread
                     for (Pedido tarefa : this.tarefas) {
                         totalEncontrado += tarefa.getTotalDaContagem();
                     }
+                    this.tarefas.clear();
 
                     System.out.println("[R] Total encontrado: " +  totalEncontrado);
                     Resposta resposta = new Resposta(totalEncontrado);

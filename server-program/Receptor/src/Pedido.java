@@ -24,7 +24,14 @@ public class Pedido extends Thread
 
     @Override
     public void run() {
-        System.out.println("[R] Thread lançada, analisando sub-pacote:\n    > " + Arrays.toString(this.numeros));
+        if (this.numeros.length < 50)
+        {
+            System.out.println("[R] Thread lançada, analisando sub-pacote:\n    > " + Arrays.toString(this.numeros));
+        }
+        else
+        {
+            System.out.println("[R] Thread lançada, analisando sub-pacote.");
+        }
         for(byte numero : numeros)
         {
             if (numero == this.procurado) this.contagemDoNumeroDesejado++;
