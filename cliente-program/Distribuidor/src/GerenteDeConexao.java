@@ -4,7 +4,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GerenteDeConexao extends Thread {
     private ArrayList<Servidor> servidores;
@@ -17,10 +16,16 @@ public class GerenteDeConexao extends Thread {
 
     private final Object travaCompartilhada = new Object();
 
+    public final int MAX = 100;
+    public final int MIN = -100;
+
+    private boolean isTeste = false;
+
+
     public GerenteDeConexao(
             ArrayList<Servidor> servidores,
             int tamanhoDoArray
-    ) throws Exception {
+    ) {
         this.servidores = servidores;
         this.tamanhoDoArray = tamanhoDoArray;
     }
@@ -48,13 +53,10 @@ public class GerenteDeConexao extends Thread {
         try {
             servidor = new Servidor(conexao, receptorDeComunicado, transmissorDeComunicado);
             servidor.start();
-        }
-        catch (Exception error)
-        {
+        } catch (Exception error) {
             return;
         }
-        synchronized (this.servidores)
-        {
+        synchronized (this.servidores) {
             this.servidores.add(servidor);
         }
     }
@@ -68,11 +70,16 @@ public class GerenteDeConexao extends Thread {
     }
 
     public void enviaPedidoDeSaidaParaServidor() {
-        this.proximoComunicado = new PedidoParaSair();
+        this.proximoComunicado = new ComunicadoEncerramento();
     }
 
     public void exibePacoteDeNumerosASerProcessado() {
         System.out.println("Pacote de números: " + Arrays.toString(this.pacoteDeNumerosASerProcessado));
+    }
+
+    public void rodarTestes() {
+        this.isTeste = true;
+        this.proximoComunicado = new PedirPorTarefas();
     }
 
     public Object getTravaCompartilhada() {
@@ -80,8 +87,6 @@ public class GerenteDeConexao extends Thread {
     }
 
     public void run() {
-        int MAX = 100;
-        int MIN = -100;
 
         byte[] numeros = null;
 
@@ -100,14 +105,27 @@ public class GerenteDeConexao extends Thread {
             numeros = new byte[this.tamanhoDoArray];
         }
 
+
         for (int i = 0; i < this.tamanhoDoArray; i++) {
-            int aleatorio = ((int) (Math.random() * (MAX - MIN))) + MIN;
+            int aleatorio = ((int) (Math.random() * (this.MAX - this.MIN))) + this.MIN;
             numeros[i] = (byte) aleatorio;
         }
         this.pacoteDeNumerosASerProcessado = numeros;
 
         try {
-            for (; ; ) {
+            for (;;) {
+
+                if (this.isTeste)
+                {
+                    numeros = new byte[49];
+                    this.numeroDesejado = 2;
+                    for (int i = 0; i < 49; i++) {
+                        int aleatorio = ((int) (Math.random() * (this.MAX - this.MIN))) + this.MIN;
+                        numeros[i] = (byte) aleatorio;
+                    }
+                    this.pacoteDeNumerosASerProcessado = numeros;
+                    this.isTeste = false;
+                }
 
                 if (this.proximoComunicado instanceof PedirPorTarefas) {
                     long inicio = System.currentTimeMillis();
@@ -127,12 +145,9 @@ public class GerenteDeConexao extends Thread {
                             byte[] subPacoteDoPedido = subPacotes.get(i);
 
                             PedidoDeTarefa pedido = new PedidoDeTarefa(subPacoteDoPedido, (byte) this.numeroDesejado);
-                            if (subPacoteDoPedido.length < 50)
-                            {
+                            if (subPacoteDoPedido.length < 50) {
                                 System.out.println("[D] Pedido de Tarefa enviado para o servidor " + servidorAtual.getConexao().getInetAddress() + ". O sub-pacote enviado foi: " + Arrays.toString(subPacoteDoPedido));
-                            }
-                            else
-                            {
+                            } else {
                                 System.out.println("[D] Pedido de Tarefa enviado para o servidor " + servidorAtual.getConexao().getInetAddress());
                             }
 
@@ -162,9 +177,11 @@ public class GerenteDeConexao extends Thread {
                     synchronized (this.travaCompartilhada) {
                         this.travaCompartilhada.notify();
                     }
-                } else if (this.proximoComunicado instanceof PedidoParaSair) {
+                }
+                else if (this.proximoComunicado instanceof ComunicadoEncerramento)
+                {
                     System.out.println("[D] Enviando Pedido de Saída para os Servidores...");
-                    PedidoParaSair pedidoDeSaida = new PedidoParaSair();
+                    ComunicadoEncerramento pedidoDeSaida = new ComunicadoEncerramento();
                     for (Servidor servidor : this.servidores) {
                         servidor.recebaComunicado(pedidoDeSaida);
                     }

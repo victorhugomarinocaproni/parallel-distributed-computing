@@ -136,9 +136,9 @@ public class Servidor extends Thread {
                     this.notify();
                 }
             }
-            else if (comunicado instanceof ComunicadoDeDesligamento)
+            else if (comunicado instanceof ComunicadoEncerramento)
             {
-                System.out.println("Servidor desligado");
+                System.out.println("Servidor " + this.conexao.getInetAddress() + " desligado.");
                 try {
                     this.adeus();
                 } catch (Exception error) {

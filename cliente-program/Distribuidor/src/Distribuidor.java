@@ -70,7 +70,8 @@ public class Distribuidor {
             System.out.println("Você deseja:");
             System.out.println("  [1] - Listar o pacote completo que será analisado. ");
             System.out.println("  [2] - Enviar Pedido de Tarefa para o(s) Servidor(es). ");
-            System.out.println("  [3] - Finalizar serviço. ");
+            System.out.println("  [3] - Rodar Testes com Vetor \"Controlado\". ");
+            System.out.println("  [4] - Finalizar serviço. ");
             System.out.print("> ");
 
             int opcaoEscolhida = -1;
@@ -115,6 +116,24 @@ public class Distribuidor {
             }
 
             if (opcaoEscolhida == 3)
+            {
+                criadoraDeConexao.getGerenteDeConexao().rodarTestes();
+                Object travaCompartilhada = null;
+                try
+                {
+                    travaCompartilhada = criadoraDeConexao.getGerenteDeConexao().getTravaCompartilhada();
+                }
+                catch(Exception erro){}
+                synchronized (travaCompartilhada)
+                {
+                    try
+                    {
+                        travaCompartilhada.wait();
+                    } catch (InterruptedException e) {}
+                }
+            }
+
+            if (opcaoEscolhida == 4)
             {
                 criadoraDeConexao.getGerenteDeConexao().enviaPedidoDeSaidaParaServidor();
                 Object travaCompartilhada = null;
