@@ -124,7 +124,7 @@ public class GerenteDeConexao extends Thread
                     System.out.println("use o comando \"desativar\"\n");
                     System.out.print("> ");
                 }
-                else if (comunicado instanceof PedidoParaSair)
+                else if (comunicado instanceof ComunicadoEncerramento)
                 {
                     System.out.println("\n[R] Pedido de Saída Recebido");
                     System.out.println("[R] Removendo Cliente da Lista de Conexões...");
