@@ -68,10 +68,11 @@ public class Distribuidor {
         for(;;)
         {
             System.out.println("Você deseja:");
-            System.out.println("  [1] - Listar o pacote completo que será analisado. ");
-            System.out.println("  [2] - Enviar Pedido de Tarefa para o(s) Servidor(es). ");
-            System.out.println("  [3] - Rodar Testes com Vetor \"Controlado\". ");
-            System.out.println("  [4] - Finalizar serviço. ");
+            System.out.println("  [1] - Listar o pacote completo que será analisado.");
+            System.out.println("  [2] - Enviar Pedido de Tarefa para o(s) Servidor(es).");
+            System.out.println("  [3] - Rodar Testes com Vetor \"Controlado\".");
+            System.out.println("  [4] - Rodar sem Paralelismo e sem Distribuição de Carga.");
+            System.out.println("  [5] - Finalizar serviço.");
             System.out.print("> ");
 
             int opcaoEscolhida = -1;
@@ -134,6 +135,54 @@ public class Distribuidor {
             }
 
             if (opcaoEscolhida == 4)
+            {
+
+                System.out.println("Digite qual número você deseja procurar:");
+                System.out.print("> ");
+
+                int numeroDesejado = 0;
+                try {
+                    numeroDesejado = Teclado.getUmInt();
+                } catch (Exception erro) {
+                }
+
+                int max = 100;
+                int min = -100;
+                byte[] numeros = null;
+                int tamanhoMaximo = Integer.MAX_VALUE;
+                int tamanho = tamanhoMaximo;
+                try {
+                    numeros = new byte[tamanho];
+                    System.out.printf("Vetor de %,d bytes alocado (limite do Java)%n", tamanho);
+                } catch (OutOfMemoryError e) {
+                    System.out.println("Não foi possível alocar vetor máximo. Tente um valor menor.");
+                    numeros = new byte[1_000_000];
+                }
+
+                for (int i = 0; i < numeros.length; i++) {
+                    int aleatorio = ((int) (Math.random() * (max - min))) + min;
+                    numeros[i] = (byte) aleatorio;
+                }
+
+                long inicio = System.currentTimeMillis();
+                System.out.println("[D] Início da(s) Tarefa(s): " + inicio);
+
+                int contador = 0;
+                for(byte numero : numeros)
+                {
+                    if (numero == numeroDesejado)
+                    {
+                        contador++;
+                    }
+                }
+
+                long fim = System.currentTimeMillis();
+                System.out.println("[D] Fim da(s) Tarefa(s): " + fim);
+
+                System.out.println("O total de vezes que o número: " + numeroDesejado + " foi encontrado é: " + contador);
+            }
+
+            if (opcaoEscolhida == 5)
             {
                 criadoraDeConexao.getGerenteDeConexao().enviaPedidoDeSaidaParaServidor();
                 Object travaCompartilhada = null;

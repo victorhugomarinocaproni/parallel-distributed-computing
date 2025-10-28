@@ -105,7 +105,6 @@ public class GerenteDeConexao extends Thread {
             numeros = new byte[this.tamanhoDoArray];
         }
 
-
         for (int i = 0; i < this.tamanhoDoArray; i++) {
             int aleatorio = ((int) (Math.random() * (this.MAX - this.MIN))) + this.MIN;
             numeros[i] = (byte) aleatorio;
