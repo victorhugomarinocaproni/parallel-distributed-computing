@@ -4,8 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
-public class Servidor extends Thread
-{
+public class Servidor extends Thread {
     private Socket conexao;
     private ObjectInputStream receptorDeComunicado;
     private ObjectOutputStream transmissorDeComunicado;
@@ -16,12 +15,13 @@ public class Servidor extends Thread
     private PedidoDeTarefa tarefa = null;
     private Resposta resposta = null;
 
+    private final Object lockResposta = new Object();
+
     public Servidor(
             Socket conexao,
             ObjectInputStream receptorDeComunicado,
             ObjectOutputStream transmissorDeComunicado
-    ) throws Exception
-    {
+    ) throws Exception {
         if (conexao == null)
             throw new Exception("Conexao ausente");
 
@@ -36,43 +36,32 @@ public class Servidor extends Thread
         this.transmissorDeComunicado = transmissorDeComunicado;
     }
 
-    public void recebaComunicado(Comunicado comunicado) throws Exception
-    {
-        try
-        {
-            if (comunicado instanceof PedidoDeTarefa)
-            {
-                this.tarefa = (PedidoDeTarefa)comunicado;
+    public void recebaComunicado(Comunicado comunicado) throws Exception {
+        try {
+            if (comunicado instanceof PedidoDeTarefa) {
+                this.tarefa = (PedidoDeTarefa) comunicado;
             }
             this.transmissorDeComunicado.writeObject(comunicado);
             this.transmissorDeComunicado.flush();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new Exception("Erro de transmissao");
         }
     }
 
-    public Comunicado espieComunicado() throws Exception
-    {
-        try
-        {
+    public Comunicado espieComunicado() throws Exception {
+        try {
             this.lockMutex.acquireUninterruptibly();
             if (this.proximoComunicado == null)
                 this.proximoComunicado = (Comunicado) this.receptorDeComunicado.readObject();
             this.lockMutex.release();
             return this.proximoComunicado;
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new Exception("Erro de recepção");
         }
     }
 
-    public Comunicado envieComunicado() throws Exception
-    {
-        try
-        {
+    public Comunicado envieComunicado() throws Exception {
+        try {
             if (this.proximoComunicado == null)
                 this.proximoComunicado = (Comunicado) this.receptorDeComunicado.readObject();
             Comunicado comunicado = this.proximoComunicado;
@@ -83,90 +72,77 @@ public class Servidor extends Thread
         }
     }
 
-    public void adeus() throws Exception
-    {
-        try
-        {
+    public void adeus() throws Exception {
+        try {
             this.transmissorDeComunicado.close();
             this.receptorDeComunicado.close();
             this.conexao.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new Exception("Erro de desconexão");
         }
     }
 
-    public Resposta getResposta() throws Exception
-    {
-        if(this.resposta == null) throw new Exception("Resposta nula");
-        return this.resposta;
+    public Resposta getResposta() {
+        synchronized (this.lockResposta) {
+            return this.resposta;
+        }
     }
 
-    public Socket  getConexao()
-    {
+    public void setResposta(Resposta resposta) {
+        synchronized (this.lockResposta) {
+            this.resposta = resposta;
+            lockResposta.notifyAll();
+        }
+    }
+
+    public Socket getConexao() {
         return this.conexao;
     }
 
-    public void fechaConexao()
-    {
-        try
-        {
+    public void fechaConexao() {
+        try {
             this.conexao.close();
+        } catch (Exception e) {
         }
-        catch(Exception e)
-        {}
     }
 
-    public void fechaCanalDeInput()
-    {
-        try
-        {
+    public void fechaCanalDeInput() {
+        try {
             this.receptorDeComunicado.close();
+        } catch (Exception e) {
         }
-        catch(Exception e)
-        {}
     }
 
-    public void fechaCanalDeOutput()
-    {
-        try
-        {
+    public void fechaCanalDeOutput() {
+        try {
             this.transmissorDeComunicado.close();
+        } catch (Exception e) {
         }
-        catch(Exception e)
-        {}
     }
 
     @Override
-    public void run()
-    {
-        for (;;)
-        {
+    public void run() {
+        for (; ; ) {
             Comunicado comunicado = null;
-            try
-            {
-                comunicado = this.espieComunicado();
-            }
-            catch (Exception error)
-            {
+            try {
+                comunicado = this.envieComunicado();
+            } catch (Exception error) {
             }
 
-            if (comunicado instanceof Resposta)
-            {
-                this.resposta = (Resposta) comunicado;
-                return;
+            if (comunicado instanceof Resposta) {
+                this.setResposta((Resposta) comunicado);
+                synchronized (this)
+                {
+                    this.notify();
+                }
             }
             else if (comunicado instanceof ComunicadoDeDesligamento)
             {
                 System.out.println("Servidor desligado");
-                try
-                {
+                try {
                     this.adeus();
+                } catch (Exception error) {
                 }
-                catch(Exception error)
-                {}
-
                 return;
             }
         }

@@ -30,7 +30,7 @@ public class Distribuidor {
             serversConnection.add(ipEPorta);
         }
 
-        System.out.println("Digite quantos elementos o \"array grande\" deve ter:");
+        System.out.println("Digite quantos elementos o \"array grande\" deve ter. Se quiser o maior tamanho possível, digite [-1]: ");
         System.out.print("> ");
 
         int quantidadeDeElementos = 0;
