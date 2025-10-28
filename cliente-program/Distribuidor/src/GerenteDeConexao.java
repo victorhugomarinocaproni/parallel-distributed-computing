@@ -1,11 +1,12 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GerenteDeConexao extends Thread {
+public class GerenteDeConexao extends Thread implements ServidorListener {
     private ArrayList<Servidor> servidores;
 
     private int tamanhoDoArray;
@@ -52,6 +53,7 @@ public class GerenteDeConexao extends Thread {
         Servidor servidor = null;
         try {
             servidor = new Servidor(conexao, receptorDeComunicado, transmissorDeComunicado);
+            servidor.setServidorListener(this);
             servidor.start();
         } catch (Exception error) {
             return;
@@ -204,6 +206,11 @@ public class GerenteDeConexao extends Thread {
             } // so tentando fechar antes de acabar a thread
             return;
         }
+    }
 
+    @Override
+    public void onServidorDesligado(Servidor servidor) {
+        System.out.println("[D] Servidor a ser removido da lista de servidores conectados: " + servidor.getConexao().getInetAddress());
+        this.servidores.remove(servidor);
     }
 }

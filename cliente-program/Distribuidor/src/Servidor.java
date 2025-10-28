@@ -17,6 +17,8 @@ public class Servidor extends Thread {
 
     private final Object lockResposta = new Object();
 
+    private ServidorListener listener;
+
     public Servidor(
             Socket conexao,
             ObjectInputStream receptorDeComunicado,
@@ -45,18 +47,6 @@ public class Servidor extends Thread {
             this.transmissorDeComunicado.flush();
         } catch (IOException e) {
             throw new Exception("Erro de transmissao");
-        }
-    }
-
-    public Comunicado espieComunicado() throws Exception {
-        try {
-            this.lockMutex.acquireUninterruptibly();
-            if (this.proximoComunicado == null)
-                this.proximoComunicado = (Comunicado) this.receptorDeComunicado.readObject();
-            this.lockMutex.release();
-            return this.proximoComunicado;
-        } catch (IOException e) {
-            throw new Exception("Erro de recepção");
         }
     }
 
@@ -93,6 +83,10 @@ public class Servidor extends Thread {
             this.resposta = resposta;
             lockResposta.notifyAll();
         }
+    }
+
+    public void setServidorListener(ServidorListener listener) {
+        this.listener = listener;
     }
 
     public Socket getConexao() {
@@ -141,11 +135,13 @@ public class Servidor extends Thread {
                 System.out.println("Servidor " + this.conexao.getInetAddress() + " desligado.");
                 try {
                     this.adeus();
+                    if (listener != null) {
+                        listener.onServidorDesligado(this);
+                    }
                 } catch (Exception error) {
                 }
                 return;
             }
         }
-
     }
 }
